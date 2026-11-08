@@ -1,0 +1,25 @@
+name: studyquest
+
+services:
+  max_bot:
+    build: .
+    container_name: max_bot
+    restart: unless-stopped
+    environment:
+      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN:-}
+      TEACHER_MAX_ID: ${TEACHER_MAX_ID:-}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DATABASE_PATH: /app/data/school.db
+      MAX_CA_CERT_FILE: /certs/ministry-root.crt
+    volumes:
+      - studyquest-data:/app/data
+      - ./certs:/certs:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os, sys; sys.exit(0 if os.path.exists('/proc/1/cmdline') and b'app.py' in open('/proc/1/cmdline','rb').read() else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  studyquest-data:
